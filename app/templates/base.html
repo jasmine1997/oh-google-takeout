@@ -3,6 +3,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.1/css/bootstrap.min.css">
+    <title>{% block title %}{% endblock %} - OpenHumans</title>
     <style>
         .footer {
             position: absolute;
@@ -22,7 +23,7 @@
 <div class="container-fluid mt-3">
 
     <nav class="navbar navbar-expand-lg navbar-light bg-light mb-3">
-        <a class="navbar-brand" href="#">Project Title</a>
+        <a class="navbar-brand" href="{% url 'info' %}">Project Title</a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#nav_content">
             <span class="navbar-toggler-icon"></span>
         </button>
@@ -30,7 +31,7 @@
         <div class="collapse navbar-collapse" id="nav_content">
             <ul class="navbar-nav ml-auto">
                 <li class="nav-item">
-                    {% if request.member %}
+                    {% if request.user.is_authenticated %}
                         <a class="nav-link" href="{% url 'logout' %}">Logout</a>
                     {% else %}
                         <a class="nav-link" href="{% url 'authorize' %}">Login</a>
@@ -40,8 +41,13 @@
         </div>
     </nav>
 
-    {% block content %}
-    {% endblock %}
+    <div class="mx-2">
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+        {% block content %}
+        {% endblock %}
+    </div>
 
 </div>
 

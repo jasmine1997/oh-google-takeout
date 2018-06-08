@@ -1,6 +1,6 @@
 import os
 import dj_database_url
-from django.shortcuts import reverse
+from django.contrib import messages
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -11,13 +11,14 @@ ALLOWED_HOSTS = []
 DEBUG = os.environ.get('DEBUG')
 
 INSTALLED_APPS = [
+    'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    'administrator',
-    'application'
+    'app',
+    'admin'
 ]
 
 MIDDLEWARE = [
@@ -25,28 +26,32 @@ MIDDLEWARE = [
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
                 'django.template.context_processors.debug',
                 'django.template.context_processors.request',
-                'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
             ],
         },
     },
 ]
 
-ROOT_URLCONF = 'application.urls'
+MESSAGE_TAGS = {
+    messages.ERROR: 'danger'
+}
+
+ROOT_URLCONF = 'app.urls'
+
+LOGIN_URL = '/authorize/'
 
 WSGI_APPLICATION = 'wsgi.application'
 

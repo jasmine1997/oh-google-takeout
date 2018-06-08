@@ -37,12 +37,15 @@
                 <li>
                     <b>Upload the data</b>
                     <p class="mb-1">
-                        You will be redirected back to <em>Project Name</em> and can then upload your data.</br>
+                        You will be redirected back to <em>Project Name</em> and can then upload your data.<br/>
                         You'll be able to access & manage your data on Open Humans.
                     </p>
                 </li>
             </ol>
-            <a href="{% url 'authorize' %}" class="btn btn-primary btn-lg ml-3">Get Started</a>
+            <a href="{% if request.user.is_authenticated %} {% url 'dashboard' %} {% else %} {% url 'authorize' %} {% endif %}"
+               class="btn btn-primary btn-lg ml-3">
+                Get Started
+            </a>
         </div>
     </div>
 {% endblock %}
