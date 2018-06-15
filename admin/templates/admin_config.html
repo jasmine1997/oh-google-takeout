@@ -1,56 +1,56 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <h3>File Metadata</h3>
-    <table class="table mb-0">
-        <thead>
-        <tr>
-            <th width="10%">#</th>
-            <th width="20%">Name</th>
-            <th width="30%">Description</th>
-            <th width="30%">Tags</th>
-            <th width="10%">Actions</th>
-        </tr>
-        </thead>
-        <tbody>
-        {% for file in files %}
-            <tr>
-                <td>{{ forloop.counter }}</td>
-                <td>{{ file.name }}</td>
-                <td>{{ file.description }}</td>
-                <td>
-                    {% for tag in file.tags %}
-                        {{ tag }}{% if not forloop.last %}, {% endif %}
-                    {% endfor %}
-                </td>
-                <td>
-                    <a href="{% url 'admin_delete_file' file.id %}" class="btn btn-danger w-100">Delete</a>
-                </td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
-    <form action="{% url 'admin_add_file' %}" method="post">
-        {% csrf_token %}
-        <table class="table table-borderless">
-            <tbody>
-            <tr>
-                <td width="10%">
-                </td>
-                <td width="20%">
-                    <input type="text" class="form-control" name="name"/>
-                </td>
-                <td width="30%">
-                    <input type="text" class="form-control" name="description"/>
-                </td>
-                <td width="30%">
-                    <input type="text" class="form-control" name="tags"/>
-                </td>
-                <td width="10%">
-                    <button type="submit" class="btn btn-info w-100">Add</button>
-                </td>
-            </tr>
-            </tbody>
-        </table>
-    </form>
+{#    <h3>File Metadata</h3>#}
+{#    <table class="table mb-0">#}
+{#        <thead>#}
+{#        <tr>#}
+{#            <th width="10%">#</th>#}
+{#            <th width="20%">Name</th>#}
+{#            <th width="30%">Description</th>#}
+{#            <th width="30%">Tags</th>#}
+{#            <th width="10%">Actions</th>#}
+{#        </tr>#}
+{#        </thead>#}
+{#        <tbody>#}
+{#        {% for file in files %}#}
+{#            <tr>#}
+{#                <td>{{ forloop.counter }}</td>#}
+{#                <td>{{ file.name }}</td>#}
+{#                <td>{{ file.description }}</td>#}
+{#                <td>#}
+{#                    {% for tag in file.tags %}#}
+{#                        {{ tag }}{% if not forloop.last %}, {% endif %}#}
+{#                    {% endfor %}#}
+{#                </td>#}
+{#                <td>#}
+{#                    <a href="{% url 'admin_delete_file' file.id %}" class="btn btn-danger w-100">Delete</a>#}
+{#                </td>#}
+{#            </tr>#}
+{#        {% endfor %}#}
+{#        </tbody>#}
+{#    </table>#}
+{#    <form action="{% url 'admin_add_file' %}" method="post">#}
+{#        {% csrf_token %}#}
+{#        <table class="table table-borderless">#}
+{#            <tbody>#}
+{#            <tr>#}
+{#                <td width="10%">#}
+{#                </td>#}
+{#                <td width="20%">#}
+{#                    <input type="text" class="form-control" name="name"/>#}
+{#                </td>#}
+{#                <td width="30%">#}
+{#                    <input type="text" class="form-control" name="description"/>#}
+{#                </td>#}
+{#                <td width="30%">#}
+{#                    <input type="text" class="form-control" name="tags"/>#}
+{#                </td>#}
+{#                <td width="10%">#}
+{#                    <button type="submit" class="btn btn-info w-100">Add</button>#}
+{#                </td>#}
+{#            </tr>#}
+{#            </tbody>#}
+{#        </table>#}
+{#    </form>#}
 {% endblock %}

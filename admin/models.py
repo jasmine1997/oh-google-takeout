@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
-from django.contrib.postgres.fields import ArrayField
+# from django.contrib.postgres.fields import ArrayField
 
 
 class Administrator(models.Model):
@@ -8,7 +8,7 @@ class Administrator(models.Model):
                                 related_name='admin')
 
 
-class FileMetadata(models.Model):
-    name = models.CharField(max_length=256)
-    description = models.TextField()
-    tags = ArrayField(models.CharField(max_length=32))
+# class FileMetadata(models.Model):
+#     name = models.CharField(max_length=256)
+#     description = models.TextField()
+#     tags = ArrayField(models.CharField(max_length=32))

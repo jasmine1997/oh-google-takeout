@@ -2,40 +2,79 @@
 
 {% block content %}
     <div class="row">
-        <div class="col-6">
-            <h3>File List</h3>
-            {{ files }}
+
+        <div class="row w-100">
+            <div class="col-6">
+                <h3>File List</h3>
+            </div>
+            <div class="col-6">
+                <a href="{% url 'sync' %}" class="btn btn-info float-right">
+                    <i class="fas fa-sync-alt"></i>
+                </a>
+            </div>
         </div>
-        <div class="col-6">
-            <h3>Upload Files</h3>
-            <form action="{% url 'upload' %}" method="post" enctype="multipart/form-data">
-                {% csrf_token %}
-                <table class="table">
-                    <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>Description</th>
-                        <th>Tags</th>
-                        <th>Upload</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {% for file in file_metadata %}
-                        <td>{{ file.name }}</td>
-                        <td>{{ file.description }}</td>
-                        <td>
-                            {% for tag in file.tags %}
-                                {{ tag }}{% if not forloop.last %}, {% endif %}
-                            {% endfor %}
-                        </td>
-                        <td><input type="file" name="{{ file.id }}"></td>
-                    {% endfor %}
-                    </tbody>
-                </table>
-                <div class="text-center">
-                    <button type="submit" class="btn btn-success">Upload</button>
-                </div>
-            </form>
-        </div>
+
+        <table class="table">
+            <thead>
+            <tr>
+                <th width="20%">Name</th>
+                <th width="30%">Description</th>
+                <th width="30%">Tags</th>
+                <th width="20%">Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for file in files %}
+                <tr>
+                    <td>{{ file.metadata.name }}</td>
+                    <td>{{ file.metadata.description }}</td>
+                    <td>
+                        {% for tag in file.metadata.tags %}
+                            {{ tag }}{% if not forloop.last %}, {% endif %}
+                        {% endfor %}
+                    </td>
+                    <td>
+                        <form action="{% url 'visualize' %}" method="post" class="d-inline">
+                            {% csrf_token %}
+                            <input type="hidden" name="file_url" value="{{ file.download_url }}">
+                            <button type="submit" class="btn btn-info">
+                                <i class="fas fa-external-link-square-alt"></i>
+                            </button>
+                        </form>
+                        <a href="{{ file.download_url }}" target="_blank" class="btn btn-success">
+                            <i class="fas fa-arrow-alt-circle-down"></i>
+                        </a>
+                        <a href="{% url 'delete' file.id %}" class="btn btn-danger">
+                            <i class="fas fa-trash-alt"></i>
+                        </a>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        <form action="{% url 'upload' %}" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <table class="table table-borderless">
+                <tbody>
+                <tr>
+                    <td class="px-3" width="20%">
+                        <input type="text" name="file_name" class="form-control">
+                    </td>
+                    <td class="px-3" width="30%">
+                        <input type="text" name="file_description" class="form-control">
+                    </td>
+                    <td class="px-3" width="30%">
+                        <input type="text" name="file_tags" class="form-control">
+                    </td>
+                    <td class="px-3" width="20%">
+                        <input type="file" name="file_json">
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+            <div class="text-center">
+                <button type="submit" class="btn btn-info">Upload</button>
+            </div>
+        </form>
     </div>
 {% endblock %}

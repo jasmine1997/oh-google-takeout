@@ -1,13 +1,17 @@
 import os
+import json
 import arrow
 import ohapi
+import requests
 from pprint import pprint
-from django.contrib.auth import login, logout
+from django.conf import settings
 from django.contrib.auth.models import User
+from django.contrib.auth import login, logout
 from django.shortcuts import render, redirect, reverse
 
-from app.models import OpenHumansMember
-from admin.models import FileMetadata
+# from admin.models import FileMetadata
+from app.decorators import member_required
+from app.models import OpenHumansMember, File
 
 
 def info(request):
@@ -48,18 +52,90 @@ def authenticate(request):
     return redirect('dashboard')
 
 
-def dashboard(request):
+@member_required
+def sync(request):
+
+    File.objects.all().delete()
+
     files = ohapi.api.exchange_oauth2_member(
         access_token=request.user.oh_member.get_access_token()
     )['data']
+
+    for file in files:
+        pprint(file)
+        File.objects.get_or_create(
+            id=file['id'],
+            defaults={
+                'member': request.user.oh_member,
+                'metadata': {
+                    'name': file['metadata']['filename'],
+                    'description': file['metadata']['description'],
+                    'tags': sorted(file['metadata']['tags'])
+                },
+                'dump': requests.get(file['download_url']).json()
+            }
+        )
+
+        return redirect('dashboard')
+
+
+@member_required
+def dashboard(request):
     return render(request, 'dashboard.html', context={
-        'files': files,
-        'file_metadata': FileMetadata.objects.all()
+        'files': request.user.oh_member.file_set.all(),
     })
 
 
+@member_required
 def upload(request):
-    pprint(request.FILES)
+
+    file = request.FILES['file_json']
+    metadata = {
+        'filename': request.POST['file_name'],
+        'description': request.POST['file_description'],
+        'tags': request.POST['file_tags']
+    }
+
+    with open(os.path.join(settings.MEDIA_ROOT, metadata['filename']), 'w+') \
+            as f:
+        json.dump(file, f)
+
+    r = ohapi.api.upload_aws(
+        target_filepath=os.path.join(
+            settings.MEDIA_ROOT, metadata['filename']
+        ),
+        metadata=metadata,
+        access_token=request.user.oh_member.get_access_token(),
+        project_member_id=request.user.oh_member.oh_id
+    )
+
+    os.remove(os.path.join(settings.MEDIA_ROOT, file.metadata['name']))
+
+    File.objects.create(
+        id=r['file_id'],
+        member=request.user.oh_member,
+        metadata=metadata,
+        dump=json.load(file)
+    )
+
+    return redirect('dashboard')
+
+
+@member_required
+def visualize(request):
+    # file = requests.get(request.POST['file_url']).json()
+    # with open(os.path.join(settings.MEDIA_ROOT, 'location_history.json')) as f:
+    #     data = json.load(f)
+    pprint(request.POST)
+    return render(request, 'visualize.html', context={
+        'file': 'http://localhost:8080/location_history.json'
+    })
+
+
+@member_required
+def delete(request, id):
+    File.objects.get(pk=id).remove()
+    return redirect('dashboard')
 
 
 def log_out(request):

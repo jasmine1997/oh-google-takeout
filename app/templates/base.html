@@ -1,24 +1,20 @@
 <html>
+
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css">
     <title>{% block title %}{% endblock %} - OpenHumans</title>
     <style>
         .footer {
-            position: absolute;
-            bottom: 0;
-            width: 100%;
+            background-color: #f8f9fa;
             height: 60px;
         }
-        .footer div {
-            background-color: #f8f9fa;
-            height: 100%;
-        }
     </style>
-    {% block styles %}
-    {% endblock %}
+    {% block styles %} {% endblock %}
 </head>
+
 <body>
 <div class="container-fluid mt-3">
 
@@ -30,13 +26,20 @@
 
         <div class="collapse navbar-collapse" id="nav_content">
             <ul class="navbar-nav ml-auto">
-                <li class="nav-item">
-                    {% if request.user.is_authenticated %}
+                {% if request.user.is_authenticated %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% if request.user.is_superuser %}{% url 'admin_config' %}{% else %}{% url 'dashboard' %}{% endif %}">
+                            Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link" href="{% url 'logout' %}">Logout</a>
-                    {% else %}
+                    </li>
+                {% else %}
+                    <li class="nav-item">
                         <a class="nav-link" href="{% url 'authorize' %}">Login</a>
-                    {% endif %}
-                </li>
+                    </li>
+                {% endif %}
             </ul>
         </div>
     </nav>
@@ -44,23 +47,22 @@
     <div class="mx-2">
         {% for message in messages %}
             <div class="alert alert-{{ message.tags }}">{{ message }}</div>
-        {% endfor %}
-        {% block content %}
-        {% endblock %}
+        {% endfor %} {% block content %} {% endblock %}
     </div>
+
+
+    <div class="footer p-3 my-3">
+        <a href="#">Create your own project on
+            <em>Open Humans</em>
+        </a>
+    </div>
+
 
 </div>
 
-<footer class="footer mb-3 px-3">
-    <div class="p-3">
-        <a href="#">Create your own project on <em>Open Humans</em></a>
-    </div>
-</footer>
-
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.1/js/bootstrap.min.js"></script>
-{% block scripts %}
-{% endblock %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.1/js/bootstrap.min.js"></script> {% block scripts %} {% endblock %}
 </body>
+
 </html>

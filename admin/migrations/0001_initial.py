@@ -22,13 +22,4 @@ class Migration(migrations.Migration):
                 ('user', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, related_name='admin', to=settings.AUTH_USER_MODEL)),
             ],
         ),
-        migrations.CreateModel(
-            name='FileMetadata',
-            fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=256)),
-                ('description', models.TextField()),
-                ('tags', django.contrib.postgres.fields.ArrayField(base_field=models.CharField(max_length=32), size=None)),
-            ],
-        ),
     ]

@@ -3,6 +3,9 @@ import ohapi
 import arrow
 from django.db import models
 from django.contrib.auth.models import User
+from django.contrib.postgres.fields import ArrayField, JSONField
+
+# from admin.models import FileMetadata
 
 
 class OpenHumansMember(models.Model):
@@ -31,3 +34,18 @@ class OpenHumansMember(models.Model):
             seconds=res['expires_in']
         ).datetime
         self.save()
+
+
+class File(models.Model):
+    id = models.CharField(max_length=16, primary_key=True)
+    member = models.ForeignKey(OpenHumansMember, on_delete=models.CASCADE)
+    name = models.CharField(max_length=256)
+    description = models.TextField()
+    tags = ArrayField(models.CharField(max_length=32))
+    dump = JSONField()
+
+    def remove(self):
+        ohapi.api.delete_file(access_token=self.member.get_access_token(),
+                              project_member_id=self.member.oh_id,
+                              file_id=self.id)
+        self.delete()

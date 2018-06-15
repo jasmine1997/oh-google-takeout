@@ -11,6 +11,9 @@ dj-database-url = "*"
 open-humans-api = "*"
 
 [dev-packages]
+ipython = "*"
+pylint = "*"
+pylint-django = "*"
 
 [requires]
 python_version = "3.6"
