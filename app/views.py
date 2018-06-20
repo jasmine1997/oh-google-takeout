@@ -5,6 +5,8 @@ import ohapi
 import requests
 from pprint import pprint
 from django.conf import settings
+from urllib.parse import parse_qs
+from django.http import HttpResponse
 from django.contrib.auth.models import User
 from django.contrib.auth import login, logout
 from django.shortcuts import render, redirect, reverse
@@ -63,20 +65,18 @@ def sync(request):
 
     for file in files:
         pprint(file)
-        File.objects.get_or_create(
+        File.objects.create(
             id=file['id'],
-            defaults={
-                'member': request.user.oh_member,
-                'metadata': {
-                    'name': file['metadata']['filename'],
-                    'description': file['metadata']['description'],
-                    'tags': sorted(file['metadata']['tags'])
-                },
-                'dump': requests.get(file['download_url']).json()
-            }
+            member=request.user.oh_member,
+            metadata={
+                'name': file['metadata']['filename'],
+                'description': file['metadata']['description'],
+                'tags': file['metadata']['tags']
+            },
+            dump=requests.get(file['download_url']).json()
         )
 
-        return redirect('dashboard')
+    return redirect('dashboard')
 
 
 @member_required
@@ -93,42 +93,73 @@ def upload(request):
     metadata = {
         'filename': request.POST['file_name'],
         'description': request.POST['file_description'],
-        'tags': request.POST['file_tags']
+        'tags': sorted([x.strip() for x in
+                        request.POST['file_tags'].split(',')])
     }
 
-    with open(os.path.join(settings.MEDIA_ROOT, metadata['filename']), 'w+') \
-            as f:
-        json.dump(file, f)
+    file_path = os.path.join(settings.MEDIA_ROOT, metadata['filename'])
+
+    with open(file_path, 'wb') as f:
+        for chunk in file.chunks():
+            f.write(chunk)
 
     r = ohapi.api.upload_aws(
-        target_filepath=os.path.join(
-            settings.MEDIA_ROOT, metadata['filename']
-        ),
+        target_filepath=file_path,
         metadata=metadata,
         access_token=request.user.oh_member.get_access_token(),
         project_member_id=request.user.oh_member.oh_id
     )
 
-    os.remove(os.path.join(settings.MEDIA_ROOT, file.metadata['name']))
+    params = parse_qs(r.request.body)
 
-    File.objects.create(
-        id=r['file_id'],
-        member=request.user.oh_member,
-        metadata=metadata,
-        dump=json.load(file)
-    )
+    with open(file_path, 'r') as f:
+        File.objects.create(
+            id=int(params['file_id'][0]),
+            member=request.user.oh_member,
+            metadata=metadata,
+            dump=json.load(f)
+        )
+
+    os.remove(file_path)
 
     return redirect('dashboard')
 
 
 @member_required
-def visualize(request):
-    # file = requests.get(request.POST['file_url']).json()
-    # with open(os.path.join(settings.MEDIA_ROOT, 'location_history.json')) as f:
-    #     data = json.load(f)
-    pprint(request.POST)
+def download(request, id):
+
+    file = File.objects.get(pk=id)
+    result = file.dump
+    date_range = request.GET.get('date_range')
+    if date_range is not None:
+        date_range = date_range.split(' - ')
+        (l, r) = [arrow.get(d) for d in date_range]
+        result['locations'] = [
+            x for x in file.dump['locations']
+            if l <= arrow.get(int(x['timestampMs']) * .001) <= r
+        ]
+
+    res = HttpResponse(json.dumps(result),
+                       content_type='application/json')
+    res['Content-Disposition'] = 'attachment; filename={}' \
+        .format(file.metadata['filename'])
+    return res
+
+
+@member_required
+def visualize(request, id):
+
+    file = File.objects.get(pk=id)
+    dates = [
+        arrow.get(
+            int(file.dump['locations'][x]['timestampMs']) * 0.001
+        ).format() for x in [-1, 0]
+    ]
+
     return render(request, 'visualize.html', context={
-        'file': 'http://localhost:8080/location_history.json'
+        'file_id': id,
+        'params': request.GET.dict(),
+        'dates': dates
     })
 
 

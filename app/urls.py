@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.urls import path, include
 
 from app import views
@@ -10,7 +11,12 @@ urlpatterns = [
     path('dashboard/', views.dashboard, name='dashboard'),
     path('sync/', views.sync, name='sync'),
     path('upload/', views.upload, name='upload'),
+    path('download/<int:id>', views.download, name='download'),
     path('delete/<int:id>', views.delete, name='delete'),
-    path('visualize/', views.visualize, name='visualize'),
+    path('visualize/<int:id>', views.visualize, name='visualize'),
     path('logout/', views.log_out, name='logout')
 ]
+
+if settings.DEBUG:
+    import debug_toolbar
+    urlpatterns.append(path('__debug__/', include(debug_toolbar.urls)))

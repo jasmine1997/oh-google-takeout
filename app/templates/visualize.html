@@ -5,21 +5,28 @@
     <div class="row">
 
         <div class="col-3">
-            <h2>Controls</h2>
-            <form action="{% url 'visualize' %}" method="post">
-                {% csrf_token %}
-                <input type="hidden" name="file_url" value="{{ file_url }}" />
-                <label for="rangepicker">Time Span</label>
-                <input type="text" name="date_range" id="rangepicker" class="w-100 form-control mb-3"/>
-                <div class="text-center">
-                    <button type="submit" class="btn btn-info">Update</button>
-                </div>
-            </form>
+            <h2 class="mb-3">Controls</h2>
+            <label for="rangepicker">Time Span</label>
+            <input type="text" name="date_range" id="rangepicker" class="w-100 form-control mb-3"/>
+            <div class="text-center">
+                <a href="#" onclick="updateVisualization()" class="btn btn-info">Set</a>
+                <a href="{% url 'visualize' file_id %}" class="btn btn-secondary">Clear</a>
+            </div>
         </div>
 
         <div class="col-9">
             <h2 id="top_boundary">Map</h2>
-            <div id="map" style="height: 800px"></div>
+            <div class="position-relative">
+                <div id="map" style="height: 800px"></div>
+                <div class="position-absolute m-3" id="status" style="top: 0; right: 0; z-index: 1000;">
+                    <i class="fas fa-spinner fa-pulse mr-2" id="spinner"></i>
+                    <span id="counter">0</span>
+                    <span> points mapped</span>
+                </div>
+                <div class="position-absolute m-3 invisible" id="failed" style="top: 0; right: 0; z-index: 1000;">
+                    <i class="fas fa-exclamation-triangle" style="font-size: 500%"></i>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -38,31 +45,48 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-daterangepicker/3.0.3/moment.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-daterangepicker/3.0.3/daterangepicker.min.js"></script>
 
-
     <script>
-      const map = L.map('map').setView([0, 0], 2);
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-      const heat = L.heatLayer([]).addTo(map);
-
-      oboe("{{ file_url }}").node('locations.*', function(location) {
-        heat._latlngs.push([location.latitudeE7 * 1e-7, location.longitudeE7 * 1e-7]);
-        heat.redraw();
-      }).done(function() {
-        console.log("DONE")
-      }).fail(function() {
-        console.log("FAILED")
+      let params = {{ params | safe }};
+      let dates = {{ dates | safe }};
+      if (params.date_range) {
+          dates = params.date_range.split(" - ");
+      }
+      $('#rangepicker').daterangepicker({
+        timePicker: true,
+        startDate: moment(dates[0]),
+        endDate: moment(dates[1]),
+        locale: {
+          format: 'YYYY-MM-DD HH:mm'
+        }
       });
     </script>
 
     <script>
-      $('#rangepicker').daterangepicker({
-        timePicker: true,
-        startDate: moment().startOf('hour'),
-        endDate: moment().startOf('hour').add(24, 'hour'),
-        locale: {
-          format: 'M/DD hh:mm A'
-        }
+      const map = L.map('map').setView([0, 0], 2);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+      let heat = L.heatLayer([]).addTo(map);
+      let statusElement = $("#status");
+      let spinnerElement = $("#spinner");
+      let counterElement = $("#counter");
+      let failElement = $("#failed");
+
+      oboe(`{% url 'download' file_id %}?${$.param(params)}`).node('locations.*', function(location) {
+        heat._latlngs.push([location.latitudeE7 * 1e-7, location.longitudeE7 * 1e-7]);
+        counterElement.text(`${heat._latlngs.length}`);
+        heat.redraw();
+      }).done(function() {
+        spinnerElement.addClass("invisible");
+      }).fail(function() {
+        spinnerElement.addClass("invisible");
+        counterElement.addClass("invisible");
+        failElement.removeClass("invisible");
       });
+    </script>
+
+    <script>
+      function updateVisualization() {
+        window.location.href = `{% url 'visualize' file_id %}?date_range=${$("#rangepicker").val()}`;
+      }
     </script>
 
 {% endblock %}

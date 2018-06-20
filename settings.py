@@ -8,6 +8,8 @@ SECRET_KEY = os.environ.get('SECRET_KEY')
 
 ALLOWED_HOSTS = []
 
+INTERNAL_IPS = ['127.0.0.1']
+
 DEBUG = os.environ.get('DEBUG')
 
 INSTALLED_APPS = [
@@ -16,12 +18,14 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'debug_toolbar',
 
     'app',
     'admin'
 ]
 
 MIDDLEWARE = [
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',

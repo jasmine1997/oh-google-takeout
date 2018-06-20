@@ -39,9 +39,7 @@ class OpenHumansMember(models.Model):
 class File(models.Model):
     id = models.CharField(max_length=16, primary_key=True)
     member = models.ForeignKey(OpenHumansMember, on_delete=models.CASCADE)
-    name = models.CharField(max_length=256)
-    description = models.TextField()
-    tags = ArrayField(models.CharField(max_length=32))
+    metadata = JSONField()
     dump = JSONField()
 
     def remove(self):
