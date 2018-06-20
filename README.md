@@ -5,6 +5,9 @@ This project allows users to upload their Location History from the Google Takeo
 To run the project from source:
 
 - Install python dependencies using [pipenv](https://github.com/pypa/pipenv#installation)
+```
+pipenv install
+```
 - Populate the environment variables listed in `env.sample` in `.env`
 - Apply migrations
 ```
