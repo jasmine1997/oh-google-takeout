@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block content %}
     <div class="row w-100">
@@ -6,9 +7,12 @@
             <h3>File List</h3>
         </div>
         <div class="col-6">
-            <a href="{% url 'sync' %}" class="btn btn-info float-right">
+            <a href="{% url 'sync' %}" class="btn btn-info float-right ml-3">
                 <i class="fas fa-sync-alt"></i>
             </a>
+            <button type="button" class="btn btn-info float-right" data-toggle="modal" data-target="#infoModal">
+                <i class="fas fa-info-circle"></i>
+            </button>
         </div>
     </div>
 
@@ -70,4 +74,40 @@
             <button type="submit" class="btn btn-info">Upload</button>
         </div>
     </form>
+
+    <div class="modal" tabindex="-1" role="dialog" id="infoModal">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Instructions</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <ol>
+                        <li>Go to <a href="https://takeout.google.com/" target="_blank">Google Takeout</a></li>
+                        <li>Select Location History (JSON)</li>
+                        <li>Extract the location history data from the archive</li>
+                        <li>Upload the JSON file here</li>
+                    </ol>
+                    <img src="{% static 'steps.gif' %}" class="w-100" alt="">
+                </div>
+                <div class="modal-footer">
+                    <a href="https://takeout.google.com/" target="_blank" class="btn btn-info">Go to Google Takeout</a>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Proceed to Upload</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block scripts %}
+    <script>
+        let params = new URLSearchParams(location.search)
+        if (params.get('modal')) {
+            $("#infoModal").modal('show');
+        }
+    </script>
 {% endblock %}

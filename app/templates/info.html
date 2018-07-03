@@ -5,7 +5,12 @@
         <h1 class="display-4">Google Location History</h1>
         <p class="lead">This project adds your Google Location History to OpenHumans and allows you to visualize the same on a heatmap.</p>
         <hr class="my-4">
-        <p><a href="{% url 'authorize' %}">Log in</a> to get started!</p>
+        <p>
+            <a href="{% if request.user.is_authenticated %} {% url 'dashboard' %} {% else %} {% url 'authorize' %} {% endif %}">
+                Log in
+            </a>
+            to get started!
+        </p>
     </div>
     <div class="row">
         <div class="col-6">

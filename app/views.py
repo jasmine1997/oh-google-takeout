@@ -51,7 +51,7 @@ def authenticate(request):
         })[0]
 
     login(request, member.user)
-    return redirect('dashboard')
+    return redirect(reverse('dashboard') + '?modal=true')
 
 
 @member_required
