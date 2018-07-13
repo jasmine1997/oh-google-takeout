@@ -9,6 +9,7 @@ python-dotenv = "*"
 dj-database-url = "*"
 "psycopg2-binary" = "*"
 open-humans-api = "*"
+whitenoise = "*"
 
 [dev-packages]
 ipython = "*"
