@@ -1,9 +1,10 @@
 import os
 import json
+import yaml
 import arrow
 import ohapi
 import requests
-from pprint import pprint
+from django.apps import apps
 from django.conf import settings
 from urllib.parse import parse_qs
 from django.http import HttpResponse
@@ -64,7 +65,6 @@ def sync(request):
     )['data']
 
     for file in files:
-        pprint(file)
         File.objects.create(
             id=file['id'],
             member=request.user.oh_member,
@@ -81,8 +81,11 @@ def sync(request):
 
 @member_required
 def dashboard(request):
+    with open(os.path.join(apps.get_app_config('admin').path, 'defaults.yml'), 'r') as f:
+        defaults = yaml.load(f)
     return render(request, 'dashboard.html', context={
         'files': request.user.oh_member.file_set.all(),
+        'defaults': defaults
     })
 
 

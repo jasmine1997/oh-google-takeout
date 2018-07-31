@@ -56,13 +56,13 @@
             <tbody>
             <tr>
                 <td class="px-3" width="20%">
-                    <input type="text" name="file_name" class="form-control" placeholder="File Name">
+                    <input type="text" name="file_name" class="form-control" value="{{ defaults.file.name }}">
                 </td>
                 <td class="px-3" width="30%">
-                    <input type="text" name="file_description" class="form-control" placeholder="Description">
+                    <input type="text" name="file_description" class="form-control" value="{{ defaults.file.description }}">
                 </td>
                 <td class="px-3" width="30%">
-                    <input type="text" name="file_tags" class="form-control" placeholder="Tags">
+                    <input type="text" name="file_tags" class="form-control" value="{{ defaults.file.tags|join:", " }}">
                 </td>
                 <td class="px-3" width="20%">
                     <input type="file" name="file_json">
